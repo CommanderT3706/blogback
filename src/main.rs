@@ -26,6 +26,7 @@ async fn serve() -> std::io::Result<()> {
 
 fn help() {
     println!("blogback --help: Shows this page");
+    println!("blogback test: Tests the database");
     println!("blogback serve: Runs the server using the configuration");
     println!("blogback post <title> <webpage_path> <image_path>: Creates a post and updates the sitemap");
     println!("blogback sitemap: Updates the sitemap");
@@ -67,7 +68,7 @@ async fn main() -> std::io::Result<()> {
 
     match command.as_str() {
         "serve" => serve().await?,
-        "db_test" => db::test().await.expect("Failed to connect to DB"),
+        "test" => db::test().await.expect("Failed to connect to DB"),
         "post" => post(args).await,
         "sitemap" => sitemap().await,
         "--help" => help(),

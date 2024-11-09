@@ -33,7 +33,7 @@ pub struct SiteConfig {
 }
 
 pub fn read_config() -> Config {
-    let config_path = "/etc/blogging-backend/config.toml";
+    let config_path = "/etc/blogback/config.toml";
 
     let config_content = fs::read_to_string(config_path).expect("Failed to read config file");
 
