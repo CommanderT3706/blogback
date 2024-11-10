@@ -20,12 +20,14 @@ GRANT ALL PRIVILEDGES ON DATABASE my_database TO my_user;
 CREATE TABLE posts (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
+    description TEXT NOT NULL
     path TEXT NOT NULL,
     image_path TEXT NOT NULL,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Allow our user to access the table
+GRANT USAGE, SELECT ON SEQUENCE posts_id_seq TO my_user;
 GRANT ALL PRIVILEGES ON TABLE posts TO my_user;
 ```
 
@@ -88,7 +90,7 @@ blogback test
 blogback serve
 
 # Create a post (may need to be run as sudo depending on your server root)
-blogback post "My Title" "https://example.com/path/to/website" "https://example.com/path/to/an/image"
+blogback post "My Title" "My Description" "https://example.com/path/to/website" "https://example.com/path/to/an/image"
 
 # Force update the sitemap (may need to be run as sudo depending on your server root)
 blogback sitemap

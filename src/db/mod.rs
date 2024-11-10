@@ -6,6 +6,7 @@ use crate::config;
 #[derive(std::fmt::Debug, Serialize)]
 pub struct Post {
     pub title: String,
+    pub description: String,
     pub path: String,
     pub image_path: String,
     pub date: Option<chrono::NaiveDateTime>
@@ -60,6 +61,7 @@ pub fn parse_posts(db_posts: Vec<PgRow>) -> Vec<Post> {
     for db_post in db_posts {
         let post = Post {
             title: db_post.get("title"),
+            description: db_post.get("description"),
             path: db_post.get("path"),
             image_path: db_post.get("image_path"),
             date: db_post.get("date"),
@@ -78,8 +80,9 @@ pub async fn create_post(post: Post) {
         .connect(connection_str().as_str()).await.expect("Connection failed");
 
     println!("Creating post...");
-    sqlx::query("INSERT INTO posts (title, path, image_path) VALUES ($1, $2, $3)")
+    sqlx::query("INSERT INTO posts (title, description, path, image_path) VALUES ($1, $2, $3, $4)")
         .bind(&post.title)
+        .bind(&post.description)
         .bind(&post.path)
         .bind(&post.image_path)
         .execute(&pool)

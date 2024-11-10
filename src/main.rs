@@ -3,7 +3,8 @@ mod db;
 mod sitemap;
 
 use std::env;
-use actix_web::{App, get, HttpServer, Responder};
+use actix_cors::Cors;
+use actix_web::{App, get, http, HttpServer, Responder};
 use crate::sitemap::generate_sitemap;
 
 #[get("/blog/api/posts")]
@@ -21,6 +22,14 @@ async fn serve()  {
 
     HttpServer::new(|| {
         App::new()
+            .wrap(
+                Cors::default()
+                    .allowed_origin("http://localhost:63342")
+                    .allowed_methods(vec!["GET"])
+                    .allowed_headers(vec![http::header::CONTENT_TYPE])
+                    .supports_credentials()
+                    .max_age(3600)
+            )
             .service(posts)
             .service(latest_posts)
     })
@@ -37,21 +46,22 @@ fn help() {
     println!("blogback --help: Shows this page");
     println!("blogback test: Tests the database");
     println!("blogback serve: Runs the server using the configuration");
-    println!("blogback post <title> <webpage_path> <image_path>: Creates a post and updates the sitemap");
+    println!("blogback post <title> <description> <webpage_path> <image_path>: Creates a post and updates the sitemap");
     println!("blogback sitemap: Updates the sitemap");
 }
 
 async fn post(args: Vec<String>) {
-    if args.len() < 5 {
+    if args.len() < 6 {
         println!("Too few arguments");
-        println!("blogback post <title> <webpage_path> <image_path>: Creates a post and updates the sitemap");
+        println!("blogback post <title> <description> <webpage_path> <image_path>: Creates a post and updates the sitemap");
         return;
     }
 
     let post = db::Post {
         title: args[2].clone(),
-        path: args[3].clone(),
-        image_path: args[4].clone(),
+        description: args[3].clone(),
+        path: args[4].clone(),
+        image_path: args[5].clone(),
         date: None
     };
 
