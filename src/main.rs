@@ -3,8 +3,7 @@ mod db;
 mod sitemap;
 
 use std::env;
-use std::process::exit;
-use actix_web::{App, get, HttpResponse, HttpServer, Responder};
+use actix_web::{App, get, HttpServer, Responder};
 use crate::sitemap::generate_sitemap;
 
 #[get("/blog/api/posts")]
@@ -12,16 +11,26 @@ async fn posts() -> actix_web::Result<impl Responder> {
     Ok(actix_web::web::Json(db::get_posts().await))
 }
 
-async fn serve() -> std::io::Result<()> {
+#[get("/blog/api/latest_posts")]
+async fn latest_posts() -> actix_web::Result<impl Responder> {
+    Ok(actix_web::web::Json(db::get_latest_posts().await))
+}
+
+async fn serve()  {
     println!("Starting server...");
 
     HttpServer::new(|| {
         App::new()
             .service(posts)
+            .service(latest_posts)
     })
-        .bind(("127.0.0.1", config::read_config().server.port))?
+        .bind(("127.0.0.1", config::read_config().server.port))
+        .expect("Failed to bind port")
         .run()
         .await
+        .expect("Failed to start server");
+
+    println!("Server started on port {}!", config::read_config().server.port);
 }
 
 fn help() {
@@ -67,7 +76,7 @@ async fn main() -> std::io::Result<()> {
     let command = &args[1];
 
     match command.as_str() {
-        "serve" => serve().await?,
+        "serve" => serve().await,
         "test" => db::test().await.expect("Failed to connect to DB"),
         "post" => post(args).await,
         "sitemap" => sitemap().await,

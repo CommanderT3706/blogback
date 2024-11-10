@@ -2,8 +2,6 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use chrono::Utc;
-use quick_xml::{Reader, Writer};
-use quick_xml::events::Event;
 use serde::Serialize;
 use crate::db;
 

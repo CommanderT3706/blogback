@@ -1,6 +1,5 @@
-use chrono::{DateTime, Utc};
 use serde::Serialize;
-use sqlx::postgres::PgPoolOptions;
+use sqlx::postgres::{PgPoolOptions, PgRow};
 use sqlx::Row;
 use crate::config;
 
@@ -36,10 +35,26 @@ pub async fn get_posts() -> Vec<Post> {
         .max_connections(1)
         .connect(connection_str().as_str()).await.expect("Connection failed");
 
-    let db_posts = sqlx::query("SELECT * FROM posts")
+    let db_posts = sqlx::query("SELECT * FROM posts ORDER BY date DESC")
         .fetch_all(&pool)
         .await.expect("Failed to retrieve posts");
 
+    parse_posts(db_posts)
+}
+
+pub async fn get_latest_posts() -> Vec<Post> {
+    let pool = PgPoolOptions::new()
+        .max_connections(1)
+        .connect(connection_str().as_str()).await.expect("Connection failed");
+
+    let db_posts = sqlx::query("SELECT * FROM posts ORDER BY date DESC LIMIT 3")
+        .fetch_all(&pool)
+        .await.expect("Failed to retrieve posts");
+
+    parse_posts(db_posts)
+}
+
+pub fn parse_posts(db_posts: Vec<PgRow>) -> Vec<Post> {
     let mut posts: Vec<Post> = Vec::new();
 
     for db_post in db_posts {
